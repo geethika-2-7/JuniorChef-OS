@@ -1,4 +1,5 @@
 import tkinter as tk
+from sequencing import start_sequencing
 score = 0
 current_recipe = ""
 ingredient_frame = None
@@ -15,7 +16,7 @@ def go_home():
 
     start_button.config(
         text="🍪 START COOKING",
-        command=go_home
+        command=start_cooking
     )
     start_button.pack(pady=30)
 
@@ -51,6 +52,7 @@ def start_cooking():
     pancake_button.pack(pady=10)
 def choose_pancake():
     global pancake_button
+    global current_recipe
     current_recipe = "Pancake"
     if pancake_button is not None:
         pancake_button.destroy()
@@ -277,8 +279,11 @@ def finish_pancake():
     )
     start_button.pack(pady=30)
 def choose_cookie():
-    global current_recipe
+    global current_recipe, pancake_button
     current_recipe = "Chocolate Cookie"
+    if pancake_button is not None:
+        pancake_button.destroy()
+        pancake_button = None
     progress_label.config(text="Step 1 of 3 🥣")
     score_label.config(text="⭐ Score: 0")
     title.config(text="🍪 CHOCOLATE COOKIES")
@@ -514,14 +519,25 @@ def start_sequence():
     title.config(text="🧩 COOKING SEQUENCE")
     welcome.config(
         text="Arrange the cooking steps in the correct order!\n\n"
-             "This is where the sequencing activity will begin."
+             "Choose the steps in the correct sequence."
     )
 
-    start_button.config(
-        text="⭐ VIEW SCORE",
-        command=show_score
+    start_button.pack_forget()
+    progress_label.pack_forget()
+    score_label.pack_forget()
+
+    start_sequencing(
+        window,
+        current_recipe,
+        sequencing_finished
     )
-    start_button.pack(pady=30)
+def sequencing_finished(correct):
+    global score
+
+    if correct:
+        score += 1
+
+    show_score()
 def show_score():
     clear_answers()
     progress_label.pack_forget()

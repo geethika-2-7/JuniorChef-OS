@@ -1,11 +1,6 @@
 import tkinter as tk
 import random
 
-
-# --------------------------------------------------
-# RECIPE DATA
-# --------------------------------------------------
-
 RECIPES = {
     "Chocolate Cookie": {
         "steps": [
@@ -19,7 +14,6 @@ RECIPES = {
             "Serve and enjoy!"
         ]
     },
-
     "Pancake": {
         "steps": [
             "Measure all the ingredients",
@@ -35,54 +29,36 @@ RECIPES = {
 }
 
 
-# --------------------------------------------------
-# SEQUENCING GAME
-# --------------------------------------------------
-
 class SequencingGame:
-
     def __init__(self, parent, recipe_name, on_complete):
-        """
-        parent      -> the main JuniorChef window
-        recipe_name -> Chocolate Cookie or Pancake
-        on_complete -> function called after the game finishes
-        """
-
         self.parent = parent
         self.recipe_name = recipe_name
         self.on_complete = on_complete
 
         self.steps = RECIPES[recipe_name]["steps"]
-
         self.correct_order = list(range(len(self.steps)))
         self.selected_order = []
-
         self.buttons = []
-        self.order_label = None
+
+        self.game_window = tk.Toplevel(parent)
+        self.game_window.title("🍳 JuniorChef - Cooking Sequence")
+        self.game_window.geometry("700x650")
+        self.game_window.configure(bg="#FFF4E6")
 
         self.build_screen()
 
-    # --------------------------------------------------
-    # CLEAR SCREEN
-    # --------------------------------------------------
-
     def clear_screen(self):
-        for widget in self.parent.winfo_children():
+        for widget in self.game_window.winfo_children():
             widget.destroy()
 
-    # --------------------------------------------------
-    # CREATE GAME SCREEN
-    # --------------------------------------------------
-
     def build_screen(self):
-
         self.clear_screen()
 
-        self.parent.title("🍳 JuniorChef OS")
-        self.parent.configure(bg="#FFF4E6")
+        self.selected_order = []
+        self.buttons = []
 
         title = tk.Label(
-            self.parent,
+            self.game_window,
             text="🧩 COOKING SEQUENCE",
             font=("Arial", 24, "bold"),
             bg="#FFF4E6",
@@ -91,11 +67,8 @@ class SequencingGame:
         title.pack(pady=20)
 
         instruction = tk.Label(
-            self.parent,
-            text=(
-                f"Arrange the {self.recipe_name} steps "
-                "in the correct order!"
-            ),
+            self.game_window,
+            text=f"Arrange the {self.recipe_name} steps in the correct order!",
             font=("Arial", 14),
             bg="#FFF4E6",
             fg="#8B6B58"
@@ -103,7 +76,7 @@ class SequencingGame:
         instruction.pack(pady=10)
 
         self.order_label = tk.Label(
-            self.parent,
+            self.game_window,
             text="Selected steps: 0",
             font=("Arial", 12, "bold"),
             bg="#FFF4E6",
@@ -111,14 +84,12 @@ class SequencingGame:
         )
         self.order_label.pack(pady=10)
 
-        # Shuffle the step numbers
         shuffled_steps = list(range(len(self.steps)))
         random.shuffle(shuffled_steps)
 
         for step_number in shuffled_steps:
-
             button = tk.Button(
-                self.parent,
+                self.game_window,
                 text=self.steps[step_number],
                 font=("Arial", 11),
                 width=45,
@@ -128,13 +99,11 @@ class SequencingGame:
                 relief="raised",
                 command=lambda n=step_number: self.select_step(n)
             )
-
             button.pack(pady=4)
-
             self.buttons.append(button)
 
         check_button = tk.Button(
-            self.parent,
+            self.game_window,
             text="✅ CHECK ORDER",
             font=("Arial", 13, "bold"),
             bg="#E87945",
@@ -146,21 +115,13 @@ class SequencingGame:
         )
         check_button.pack(pady=20)
 
-    # --------------------------------------------------
-    # SELECT A STEP
-    # --------------------------------------------------
-
     def select_step(self, step_number):
-
-        # Prevent selecting the same step twice
         if step_number in self.selected_order:
             return
 
         self.selected_order.append(step_number)
 
-        # Disable the selected button
         for button in self.buttons:
-
             if button["text"] == self.steps[step_number]:
                 button.config(
                     state="disabled",
@@ -173,66 +134,41 @@ class SequencingGame:
             fg="#7A3E22"
         )
 
-    # --------------------------------------------------
-    # CHECK ANSWER
-    # --------------------------------------------------
-
     def check_sequence(self):
-
-        # User has not selected every step
         if len(self.selected_order) < len(self.steps):
-
             self.order_label.config(
-                text=(
-                    f"Please select all {len(self.steps)} "
-                    "steps first!"
-                ),
+                text=f"Please select all {len(self.steps)} steps first!",
                 fg="#C0392B"
             )
-
             return
 
-        # Check whether the order is correct
         if self.selected_order == self.correct_order:
             self.show_result(True)
-
         else:
             self.show_result(False)
 
-    # --------------------------------------------------
-    # RESULT
-    # --------------------------------------------------
-
     def show_result(self, correct):
-
         self.clear_screen()
 
         if correct:
-
             title_text = "🎉 GREAT JOB!"
-
             result_text = (
                 f"You completed the {self.recipe_name} "
                 "sequence correctly!\n\n"
                 "All the cooking steps are in the right order!"
             )
-
             result_color = "#3A8D40"
-
         else:
-
             title_text = "💡 ALMOST THERE!"
-
             result_text = (
                 f"The {self.recipe_name} steps are not "
                 "in the correct order yet.\n\n"
                 "Don't worry — you can try again!"
             )
-
             result_color = "#C77700"
 
         title = tk.Label(
-            self.parent,
+            self.game_window,
             text=title_text,
             font=("Arial", 24, "bold"),
             bg="#FFF4E6",
@@ -241,7 +177,7 @@ class SequencingGame:
         title.pack(pady=30)
 
         result = tk.Label(
-            self.parent,
+            self.game_window,
             text=result_text,
             font=("Arial", 14),
             bg="#FFF4E6",
@@ -251,7 +187,7 @@ class SequencingGame:
         result.pack(pady=20)
 
         retry_button = tk.Button(
-            self.parent,
+            self.game_window,
             text="🔄 TRY AGAIN",
             font=("Arial", 12, "bold"),
             bg="#E87945",
@@ -264,7 +200,7 @@ class SequencingGame:
         retry_button.pack(pady=10)
 
         continue_button = tk.Button(
-            self.parent,
+            self.game_window,
             text="⭐ CONTINUE",
             font=("Arial", 12, "bold"),
             bg="#72C472",
@@ -272,45 +208,21 @@ class SequencingGame:
             activebackground="#5EAD5E",
             padx=20,
             pady=8,
-            command=lambda: self.on_complete(correct)
+            command=lambda: self.finish(correct)
         )
         continue_button.pack(pady=10)
 
-    # --------------------------------------------------
-    # RETRY
-    # --------------------------------------------------
-
     def retry(self):
-
-        self.selected_order = []
-        self.buttons = []
-
         self.build_screen()
 
+    def finish(self, correct):
+        self.game_window.destroy()
+        self.on_complete(correct)
 
-# --------------------------------------------------
-# FUNCTION USED BY MAIN.PY
-# --------------------------------------------------
 
 def start_sequencing(parent, recipe_name, on_complete):
-    """
-    Starts the sequencing activity.
-
-    parent      -> JuniorChef main window
-    recipe_name -> "Chocolate Cookie" or "Pancake"
-    on_complete -> function receiving True/False
-    """
-
     if recipe_name not in RECIPES:
         print(f"Unknown recipe: {recipe_name}")
         return
 
-    SequencingGame(
-        parent,
-        recipe_name,
-        on_complete
-    )
-
-
-
-
+    SequencingGame(parent, recipe_name, on_complete)
